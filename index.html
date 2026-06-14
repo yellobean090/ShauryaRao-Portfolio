@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shaurya Rao — Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #F7F7F5;
+    --surface: #FFFFFF;
+    --border: #E8E8E4;
+    --text: #0F0F0E;
+    --muted: #6B6B66;
+    --accent: #5B4FE8;
+    --accent-light: #EEF0FF;
+    --accent-dim: rgba(91,79,232,0.12);
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 3rem;
+    background: rgba(247,247,245,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    letter-spacing: 0.01em;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  #hero {
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 0 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-text { z-index: 2; }
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+  .hero-name {
+    font-size: clamp(2.8rem, 5vw, 4.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+  .hero-name span {
+    color: var(--accent);
+  }
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 420px;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+  }
+  .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-primary {
+    padding: 0.75rem 1.75rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: var(--sans);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.15s;
+    display: inline-block;
+  }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-ghost {
+    padding: 0.75rem 1.75rem;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--sans);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s;
+    display: inline-block;
+  }
+  .btn-ghost:hover { border-color: var(--accent); background: var(--accent-light); }
+
+  #hero-canvas {
+    position: absolute; right: 0; top: 0;
+    width: 50%; height: 100%;
+    z-index: 1;
+  }
+
+  .hero-scroll-hint {
+    position: absolute;
+    bottom: 2rem; left: 3rem;
+    display: flex; align-items: center; gap: 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .scroll-line {
+    width: 40px; height: 1px;
+    background: var(--muted);
+  }
+
+  /* SECTIONS */
+  section { padding: 7rem 3rem; }
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+
+  /* ABOUT */
+  #about {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    max-width: 1100px;
+  }
+  .about-body {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+  }
+  .about-body strong { color: var(--text); font-weight: 500; }
+  .about-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+  .stat-card {
+    padding: 1.25rem;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .stat-num {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  #about-canvas {
+    width: 100%;
+    height: 380px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+
+  /* SKILLS */
+  #skills { max-width: 1100px; margin: 0 auto; }
+  .skills-header { margin-bottom: 3.5rem; }
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+  .skill-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .skill-group:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+  }
+  .skill-group-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .skill-tag {
+    font-size: 0.8rem;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.3rem 0.65rem;
+    font-family: var(--mono);
+  }
+
+  /* PROJECTS */
+  #projects {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .projects-header { margin-bottom: 3.5rem; }
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    max-width: 1100px;
+  }
+  .project-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .project-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(91,79,232,0.08);
+  }
+  .project-card.featured {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  .project-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    width: fit-content;
+  }
+  .project-card.featured .project-badge {
+    background: var(--accent);
+    color: white;
+  }
+  .project-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .project-desc {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.7;
+    flex: 1;
+  }
+  .project-stack { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .stack-chip {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.2rem 0.5rem;
+  }
+  .project-link {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.25rem;
+    transition: gap 0.2s;
+  }
+  .project-link:hover { gap: 0.6rem; }
+
+  /* CONTACT */
+  #contact { text-align: center; max-width: 640px; margin: 0 auto; }
+  .contact-desc {
+    font-size: 1rem;
+    color: var(--muted);
+    margin: 1rem 0 2.5rem;
+    line-height: 1.7;
+  }
+  .contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text);
+    text-decoration: none;
+    background: var(--surface);
+    transition: border-color 0.2s, background 0.2s;
+    font-family: var(--mono);
+  }
+  .contact-item:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 2rem 3rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  footer p {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  /* CANVAS WRAPPER */
+  .canvas-wrapper { position: relative; }
+
+  /* REVEAL ANIMATION */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    #hero { grid-template-columns: 1fr; padding: 0 1.5rem; }
+    #hero-canvas { width: 100%; opacity: 0.15; }
+    section { padding: 4rem 1.5rem; }
+    .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    #about-canvas { display: none; }
+    footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">shaurya.dev</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-text reveal">
+    <p class="hero-eyebrow">// full-stack developer</p>
+    <h1 class="hero-name">Shaurya<br><span>Rao</span></h1>
+    <p class="hero-sub">I build end-to-end systems — production APIs, real-time frontends, AI integrations, and everything in between. First year CS. Already shipped.</p>
+    <div class="hero-ctas">
+      <a href="#projects" class="btn-primary">View projects →</a>
+      <a href="#contact" class="btn-ghost">Get in touch</a>
+    </div>
+  </div>
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-scroll-hint">
+    <div class="scroll-line"></div>
+    scroll to explore
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div class="reveal">
+      <p class="section-label">// about</p>
+      <h2 class="section-title">Builder by nature,<br>engineer by choice.</h2>
+      <p class="about-body">
+        I'm a first-year CS student who didn't wait for college to start building. I've shipped a <strong>full production platform solo</strong> — backend, frontend, auth, database, deployment, and real users.
+      </p>
+      <p class="about-body">
+        My stack spans <strong>TypeScript, React, Node.js, Python, Flask, and PostgreSQL</strong>. I work across the entire system — from writing REST APIs to debugging production 502s at 2am.
+      </p>
+      <p class="about-body">
+        Outside code: computer vision experiments, AR face filters, rap, and world-building.
+      </p>
+      <div class="about-stats">
+        <div class="stat-card">
+          <div class="stat-num">5+</div>
+          <div class="stat-label">Shipped projects</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">91%</div>
+          <div class="stat-label">Class 12 ISC</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">8+</div>
+          <div class="stat-label">Technologies</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">2</div>
+          <div class="stat-label">Internships</div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal">
+      <canvas id="about-canvas"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="skills-header reveal">
+    <p class="section-label">// skills</p>
+    <h2 class="section-title">What I work with</h2>
+  </div>
+  <div class="skills-grid reveal">
+    <div class="skill-group">
+      <div class="skill-group-label">Languages</div>
+      <div class="skill-tags">
+        <span class="skill-tag">TypeScript</span>
+        <span class="skill-tag">JavaScript</span>
+        <span class="skill-tag">Python</span>
+        <span class="skill-tag">Java</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-label">Frontend</div>
+      <div class="skill-tags">
+        <span class="skill-tag">React</span>
+        <span class="skill-tag">Vite</span>
+        <span class="skill-tag">Tailwind CSS</span>
+        <span class="skill-tag">HTML/CSS</span>
+        <span class="skill-tag">Chart.js</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-label">Backend</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Express</span>
+        <span class="skill-tag">Node.js</span>
+        <span class="skill-tag">Flask</span>
+        <span class="skill-tag">REST APIs</span>
+        <span class="skill-tag">WebSockets</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-label">Databases</div>
+      <div class="skill-tags">
+        <span class="skill-tag">PostgreSQL</span>
+        <span class="skill-tag">MongoDB</span>
+        <span class="skill-tag">SQLite</span>
+        <span class="skill-tag">Supabase</span>
+        <span class="skill-tag">Redis</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-label">DevOps</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Vercel</span>
+        <span class="skill-tag">Railway</span>
+        <span class="skill-tag">Render</span>
+        <span class="skill-tag">Git</span>
+        <span class="skill-tag">Linux</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-label">AI & Vision</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Gemini API</span>
+        <span class="skill-tag">OpenCV</span>
+        <span class="skill-tag">MediaPipe</span>
+        <span class="skill-tag">Stable Diffusion</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="projects-header reveal">
+    <p class="section-label">// projects</p>
+    <h2 class="section-title">Things I've built</h2>
+  </div>
+  <div class="projects-grid">
+    <div class="project-card featured reveal">
+      <span class="project-badge">⭐ flagship</span>
+      <div class="project-name">Nillohit</div>
+      <p class="project-desc">Full production task-reward platform built solo. Four role-based dashboards, UPI/USDT withdrawals, BotBouncer fraud detection, and a complete dark-theme UI overhaul. Real users, real infrastructure.</p>
+      <div class="project-stack">
+        <span class="stack-chip">React</span>
+        <span class="stack-chip">TypeScript</span>
+        <span class="stack-chip">Express</span>
+        <span class="stack-chip">Supabase</span>
+        <span class="stack-chip">Redis</span>
+        <span class="stack-chip">Drizzle ORM</span>
+      </div>
+    </div>
+    <div class="project-card reveal">
+      <span class="project-badge">internship</span>
+      <div class="project-name">NayePankh Volunteer Platform</div>
+      <p class="project-desc">NGO management platform replacing spreadsheet ops. Volunteer CRUD, event coordination, four Chart.js analytics dashboards, and a Gemini-powered AI chatbot with interest-based volunteer matching.</p>
+      <div class="project-stack">
+        <span class="stack-chip">Python</span>
+        <span class="stack-chip">Flask</span>
+        <span class="stack-chip">SQLite</span>
+        <span class="stack-chip">Gemini API</span>
+        <span class="stack-chip">Chart.js</span>
+      </div>
+      <a href="https://github.com/yellobean090/NayePankh-Smart-Volunteer-Platform" class="project-link" target="_blank">github →</a>
+    </div>
+    <div class="project-card reveal">
+      <span class="project-badge">internship</span>
+      <div class="project-name">Task Manager API</div>
+      <p class="project-desc">Full-stack task management with JWT auth, bcrypt password hashing, and role-based access control. Versioned RESTful API with Swagger docs, layered architecture, and a React frontend.</p>
+      <div class="project-stack">
+        <span class="stack-chip">Node.js</span>
+        <span class="stack-chip">Express</span>
+        <span class="stack-chip">MongoDB</span>
+        <span class="stack-chip">React</span>
+        <span class="stack-chip">JWT</span>
+        <span class="stack-chip">Swagger</span>
+      </div>
+      <a href="https://github.com/yellobean090/Final-Assignment" class="project-link" target="_blank">github →</a>
+    </div>
+    <div class="project-card reveal">
+      <span class="project-badge">computer vision</span>
+      <div class="project-name">Real-Time AR Face Filter</div>
+      <p class="project-desc">Spider-Man mask AR overlay using OpenCV and MediaPipe's 468-point face mesh. Delaunay triangulation mesh warping with per-group keyboard-tunable UV offsets at live camera framerate.</p>
+      <div class="project-stack">
+        <span class="stack-chip">Python</span>
+        <span class="stack-chip">OpenCV</span>
+        <span class="stack-chip">MediaPipe</span>
+      </div>
+    </div>
+    <div class="project-card reveal">
+      <span class="project-badge">experiment</span>
+      <div class="project-name">Ephemeral Chat System</div>
+      <p class="project-desc">Anonymous real-time terminal-style chat with WebSockets and ngrok tunneling. Zero persistence — messages exist only in the session. Built in a weekend.</p>
+      <div class="project-stack">
+        <span class="stack-chip">Node.js</span>
+        <span class="stack-chip">WebSockets</span>
+        <span class="stack-chip">ngrok</span>
+        <span class="stack-chip">Vercel</span>
+      </div>
+    </div>
+    <div class="project-card reveal" style="justify-content: center; align-items: center; text-align: center; border-style: dashed; min-height: 220px;">
+      <div style="color: var(--muted); font-size: 0.85rem;">More in progress...</div>
+      <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--accent); margin-top: 0.5rem;">YelloBean Studio</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="reveal">
+    <p class="section-label" style="text-align:center">// contact</p>
+    <h2 class="section-title">Let's work together</h2>
+    <p class="contact-desc">Open to internships, hackathons, and serious collaborations. If you have a real problem to solve, I'm interested.</p>
+    <div class="contact-links">
+      <a href="mailto:raoshaurya147@gmail.com" class="contact-item">✉ raoshaurya147@gmail.com</a>
+      <a href="https://github.com/yellobean090" class="contact-item" target="_blank">⌥ github</a>
+      <a href="tel:+918467842050" class="contact-item">↗ +91 84678 42050</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Shaurya Rao · YelloBean Studio</p>
+  <p>Built with vanilla JS + Three.js</p>
+</footer>
+
+<script>
+// REVEAL ON SCROLL
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+    }
+  });
+}, { threshold: 0.12 });
+reveals.forEach(r => observer.observe(r));
+// Trigger hero immediately
+document.querySelectorAll('#hero .reveal').forEach(el => el.classList.add('visible'));
+
+// HERO 3D SCENE
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+  camera.position.set(0, 0, 6);
+
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Ambient + directional light
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+  const dirLight = new THREE.DirectionalLight(0x5B4FE8, 1.2);
+  dirLight.position.set(3, 5, 5);
+  scene.add(dirLight);
+  const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+  dirLight2.position.set(-3, -2, 2);
+  scene.add(dirLight2);
+
+  // Floating geometric shapes
+  const shapes = [];
+  const geometries = [
+    new THREE.IcosahedronGeometry(0.7, 0),
+    new THREE.OctahedronGeometry(0.6, 0),
+    new THREE.TetrahedronGeometry(0.65, 0),
+    new THREE.IcosahedronGeometry(0.45, 0),
+    new THREE.OctahedronGeometry(0.4, 0),
+    new THREE.IcosahedronGeometry(0.3, 0),
+    new THREE.TetrahedronGeometry(0.35, 0),
+  ];
+
+  const matSolid = new THREE.MeshPhongMaterial({
+    color: 0x5B4FE8, shininess: 60, transparent: true, opacity: 0.92
+  });
+  const matWire = new THREE.MeshPhongMaterial({
+    color: 0x5B4FE8, wireframe: true, transparent: true, opacity: 0.35
+  });
+  const matLight = new THREE.MeshPhongMaterial({
+    color: 0xABA6F5, shininess: 30, transparent: true, opacity: 0.7
+  });
+
+  const mats = [matSolid, matWire, matLight, matSolid, matWire, matLight, matSolid];
+
+  geometries.forEach((geo, i) => {
+    const mesh = new THREE.Mesh(geo, mats[i]);
+    const angle = (i / geometries.length) * Math.PI * 2;
+    const radius = 1.8 + Math.random() * 1.2;
+    mesh.position.set(
+      Math.cos(angle) * radius * 0.9,
+      Math.sin(angle) * radius * 0.6 + (Math.random() - 0.5) * 0.8,
+      (Math.random() - 0.5) * 2
+    );
+    mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+    shapes.push({ mesh, speed: 0.004 + Math.random() * 0.006, offset: Math.random() * Math.PI * 2 });
+    scene.add(mesh);
+  });
+
+  // Particle field
+  const particleGeo = new THREE.BufferGeometry();
+  const count = 180;
+  const positions = new Float32Array(count * 3);
+  for (let i = 0; i < count * 3; i++) positions[i] = (Math.random() - 0.5) * 12;
+  particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const particles = new THREE.Points(particleGeo, new THREE.PointsMaterial({
+    color: 0x5B4FE8, size: 0.04, transparent: true, opacity: 0.5
+  }));
+  scene.add(particles);
+
+  // Mouse parallax
+  let mx = 0, my = 0;
+  document.addEventListener('mousemove', (e) => {
+    mx = (e.clientX / window.innerWidth - 0.5) * 2;
+    my = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.012;
+
+    shapes.forEach(({ mesh, speed, offset }) => {
+      mesh.rotation.x += speed;
+      mesh.rotation.y += speed * 0.7;
+      mesh.position.y += Math.sin(t + offset) * 0.004;
+    });
+
+    particles.rotation.y += 0.0008;
+    camera.position.x += (mx * 0.4 - camera.position.x) * 0.04;
+    camera.position.y += (-my * 0.25 - camera.position.y) * 0.04;
+    camera.lookAt(0, 0, 0);
+
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+
+// ABOUT 3D SCENE — rotating skill sphere
+(function() {
+  const canvas = document.getElementById('about-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0xF7F7F5, 1);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xF7F7F5);
+  const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
+  camera.position.set(0, 0, 5);
+
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  new ResizeObserver(resize).observe(canvas);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const dl = new THREE.DirectionalLight(0x5B4FE8, 1.0);
+  dl.position.set(3, 4, 5);
+  scene.add(dl);
+
+  // Central torus knot
+  const knot = new THREE.Mesh(
+    new THREE.TorusKnotGeometry(1.1, 0.32, 128, 16),
+    new THREE.MeshPhongMaterial({ color: 0x5B4FE8, shininess: 80, transparent: true, opacity: 0.88 })
+  );
+  scene.add(knot);
+
+  // Orbiting ring
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(1.9, 0.025, 8, 80),
+    new THREE.MeshBasicMaterial({ color: 0xABA6F5, transparent: true, opacity: 0.5 })
+  );
+  ring.rotation.x = Math.PI / 3;
+  scene.add(ring);
+
+  // Small orbiting spheres
+  const orbiters = [];
+  for (let i = 0; i < 6; i++) {
+    const mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(0.1, 12, 12),
+      new THREE.MeshPhongMaterial({ color: i % 2 === 0 ? 0x5B4FE8 : 0xABA6F5, shininess: 60 })
+    );
+    orbiters.push({ mesh, angle: (i / 6) * Math.PI * 2, radius: 1.9, speed: 0.008 + i * 0.002 });
+    scene.add(mesh);
+  }
+
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.01;
+    knot.rotation.x += 0.006;
+    knot.rotation.y += 0.009;
+    ring.rotation.z += 0.004;
+
+    orbiters.forEach(o => {
+      o.angle += o.speed;
+      o.mesh.position.x = Math.cos(o.angle) * o.radius;
+      o.mesh.position.y = Math.sin(o.angle) * o.radius * Math.sin(Math.PI / 3);
+      o.mesh.position.z = Math.sin(o.angle) * o.radius * Math.cos(Math.PI / 3);
+    });
+
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+</script>
+</body>
+</html>
