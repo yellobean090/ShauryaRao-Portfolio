@@ -86,7 +86,7 @@
     margin-bottom: 1rem;
     color: var(--text);
   }
-  .hero-name span {
+  .hero-name .accent-word {
     color: var(--accent);
   }
   .hero-sub {
@@ -146,6 +146,12 @@
   .scroll-line {
     width: 40px; height: 1px;
     background: var(--muted);
+    transform-origin: left;
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { transform: scaleX(1); opacity: 0.6; }
+    50% { transform: scaleX(0.5); opacity: 1; }
   }
 
   /* SECTIONS */
@@ -272,6 +278,7 @@
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 1.5rem;
     max-width: 1100px;
+    perspective: 1200px;
   }
   .project-card {
     border: 1px solid var(--border);
@@ -281,12 +288,12 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s ease-out;
     cursor: default;
+    transform-style: preserve-3d;
   }
   .project-card:hover {
     border-color: var(--accent);
-    transform: translateY(-4px);
     box-shadow: 0 12px 40px rgba(91,79,232,0.08);
   }
   .project-card.featured {
@@ -406,15 +413,169 @@
     transform: translateY(0);
   }
 
+  /* HERO TEXT ENTRANCE */
+  .line-reveal {
+    display: inline-block;
+    opacity: 0;
+    animation: lineUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards;
+    animation-delay: var(--d, 0s);
+  }
+  @keyframes lineUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .blink-cursor {
+    display: inline-block;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  /* NAV LINK UNDERLINE */
+  .nav-links a { position: relative; }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -4px;
+    width: 100%; height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+  }
+  .nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
+
+  /* SCROLL PROGRESS BAR */
+  .scroll-progress {
+    position: fixed; top: 0; left: 0;
+    height: 2px; width: 0%;
+    background: var(--accent);
+    z-index: 200;
+    transition: width 0.1s linear;
+  }
+
+  /* MOBILE NAV TOGGLE */
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 32px; height: 32px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 110;
+  }
+  .nav-toggle span {
+    display: block;
+    width: 100%; height: 1.5px;
+    background: var(--text);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  .mobile-nav {
+    position: fixed;
+    top: 0; right: 0;
+    width: min(78vw, 320px); height: 100vh;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 6rem 2rem 2rem;
+    z-index: 105;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+  }
+  .mobile-nav.open { transform: translateX(0); }
+  .mobile-nav a {
+    font-size: 1.1rem;
+    color: var(--text);
+    text-decoration: none;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+  }
+  .mobile-nav a:active { color: var(--accent); }
+
+  /* SKILL TAG HOVER */
+  .skill-tag { transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, border-color 0.18s ease; }
+  .skill-tag:hover {
+    transform: translateY(-2px) scale(1.04);
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  /* PROJECT CARD TILT */
+  .project-card { will-change: transform; }
+  .project-card .project-badge,
+  .project-card .project-name,
+  .project-card .project-desc,
+  .project-card .project-stack,
+  .project-card .project-link { transform: translateZ(20px); }
+
+  /* STAT COUNT-UP handled via JS; just a subtle pop-in */
+  .stat-card { transition: transform 0.25s ease, border-color 0.25s ease; }
+  .stat-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+
+  /* FOCUS STATES */
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001s !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001s !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    #hero { grid-template-columns: 1fr; }
+    #hero-canvas { width: 100%; opacity: 0.2; }
+    .hero-sub { max-width: 560px; }
+    .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+    #about-canvas { height: 280px; }
+  }
+
   @media (max-width: 768px) {
     nav { padding: 1rem 1.5rem; }
     .nav-links { display: none; }
-    #hero { grid-template-columns: 1fr; padding: 0 1.5rem; }
+    .nav-toggle { display: flex; }
+    #hero { grid-template-columns: 1fr; padding: 5.5rem 1.5rem 2rem; height: auto; min-height: 100vh; }
     #hero-canvas { width: 100%; opacity: 0.15; }
     section { padding: 4rem 1.5rem; }
     .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
     #about-canvas { display: none; }
+    .about-stats { gap: 1rem; }
     footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+    .hero-scroll-hint { display: none; }
+  }
+
+  @media (max-width: 480px) {
+    section { padding: 3rem 1.25rem; }
+    nav { padding: 0.9rem 1.25rem; }
+    .hero-name { font-size: clamp(2.2rem, 11vw, 2.8rem); }
+    .hero-sub { font-size: 0.95rem; }
+    .hero-ctas { flex-direction: column; align-items: stretch; }
+    .hero-ctas a { text-align: center; }
+    .about-stats { grid-template-columns: 1fr 1fr; }
+    .stat-num { font-size: 1.6rem; }
+    .skills-grid { grid-template-columns: 1fr; }
+    .projects-grid { grid-template-columns: 1fr; }
+    .contact-links { flex-direction: column; }
+    .contact-item { justify-content: center; }
   }
 </style>
 </head>
@@ -428,14 +589,24 @@
     <li><a href="#projects">Projects</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
+  <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<div class="mobile-nav" id="mobileNav">
+  <a href="#about">About</a>
+  <a href="#skills">Skills</a>
+  <a href="#projects">Projects</a>
+  <a href="#contact">Contact</a>
+</div>
+<div class="scroll-progress" id="scrollProgress"></div>
 
 <!-- HERO -->
 <section id="hero">
   <div class="hero-text reveal">
-    <p class="hero-eyebrow">// full-stack developer</p>
-    <h1 class="hero-name">Shaurya<br><span>Rao</span></h1>
-    <p class="hero-sub">I build end-to-end systems — production APIs, real-time frontends, AI integrations, and everything in between. First year CS. Already shipped.</p>
+    <p class="hero-eyebrow">// full-stack developer<span class="blink-cursor">_</span></p>
+    <h1 class="hero-name"><span class="line-reveal" style="--d:0.05s">Shaurya</span><br><span class="line-reveal" style="--d:0.18s"><span class="accent-word">Rao</span></span></h1>
+    <p class="hero-sub">I build end-to-end systems — production APIs, real-time frontends, AI integrations, and everything in between. First-year CS student, no degree yet, already shipped a platform with real users. Remote-first, open to the right on-site offer.</p>
     <div class="hero-ctas">
       <a href="#projects" class="btn-primary">View projects →</a>
       <a href="#contact" class="btn-ghost">Get in touch</a>
@@ -455,30 +626,30 @@
       <p class="section-label">// about</p>
       <h2 class="section-title">Builder by nature,<br>engineer by choice.</h2>
       <p class="about-body">
-        I'm a first-year CS student who didn't wait for college to start building. I've shipped a <strong>full production platform solo</strong> — backend, frontend, auth, database, deployment, and real users.
+        I'm a first-year CS student who didn't wait for college to start building. I've shipped a <strong>full production platform solo</strong> — backend, frontend, auth, database, deployment, and real users — and run it well enough to have diagnosed and fixed its production incidents myself.
       </p>
       <p class="about-body">
-        My stack spans <strong>TypeScript, React, Node.js, Python, Flask, and PostgreSQL</strong>. I work across the entire system — from writing REST APIs to debugging production 502s at 2am.
+        My stack spans <strong>TypeScript, React, Node.js, Python, Flask, and PostgreSQL</strong>, and lately stretches into agentic systems — I built an incident-memory agent on <strong>CockroachDB's vector search and AWS Bedrock</strong> for a hackathon. I work across the entire system, from writing REST APIs to debugging production 502s at 2am.
       </p>
       <p class="about-body">
         Outside code: computer vision experiments, AR face filters, rap, and world-building.
       </p>
       <div class="about-stats">
         <div class="stat-card">
-          <div class="stat-num">5+</div>
-          <div class="stat-label">Shipped projects</div>
+          <div class="stat-num">6</div>
+          <div class="stat-label">Shipped / built projects</div>
         </div>
         <div class="stat-card">
           <div class="stat-num">91%</div>
           <div class="stat-label">Class 12 ISC</div>
         </div>
         <div class="stat-card">
-          <div class="stat-num">8+</div>
+          <div class="stat-num">10+</div>
           <div class="stat-label">Technologies</div>
         </div>
         <div class="stat-card">
-          <div class="stat-num">2</div>
-          <div class="stat-label">Internships</div>
+          <div class="stat-num">1</div>
+          <div class="stat-label">NGO client project</div>
         </div>
       </div>
     </div>
@@ -531,12 +702,15 @@
         <span class="skill-tag">MongoDB</span>
         <span class="skill-tag">SQLite</span>
         <span class="skill-tag">Supabase</span>
+        <span class="skill-tag">CockroachDB</span>
         <span class="skill-tag">Redis</span>
       </div>
     </div>
     <div class="skill-group">
-      <div class="skill-group-label">DevOps</div>
+      <div class="skill-group-label">Cloud & DevOps</div>
       <div class="skill-tags">
+        <span class="skill-tag">AWS Lambda</span>
+        <span class="skill-tag">Amazon Bedrock</span>
         <span class="skill-tag">Vercel</span>
         <span class="skill-tag">Railway</span>
         <span class="skill-tag">Render</span>
@@ -547,10 +721,10 @@
     <div class="skill-group">
       <div class="skill-group-label">AI & Vision</div>
       <div class="skill-tags">
+        <span class="skill-tag">Anthropic API</span>
         <span class="skill-tag">Gemini API</span>
         <span class="skill-tag">OpenCV</span>
         <span class="skill-tag">MediaPipe</span>
-        <span class="skill-tag">Stable Diffusion</span>
       </div>
     </div>
   </div>
@@ -589,10 +763,24 @@
       </div>
       <a href="https://github.com/yellobean090/NayePankh-Smart-Volunteer-Platform" class="project-link" target="_blank">github →</a>
     </div>
+    <div class="project-card featured reveal">
+      <span class="project-badge">⚡ hackathon</span>
+      <div class="project-name">AgentOps Memory</div>
+      <p class="project-desc">An incident-response agent that remembers. Past incidents are embedded and stored in CockroachDB's distributed vector index, so recurring failures get matched to prior root causes instead of being re-diagnosed from scratch. Async embedding pipeline on AWS Lambda + Bedrock, three swappable reasoning backends behind one tool-calling interface. Built solo for the CockroachDB × AWS Hackathon.</p>
+      <div class="project-stack">
+        <span class="stack-chip">CockroachDB</span>
+        <span class="stack-chip">AWS Lambda</span>
+        <span class="stack-chip">Bedrock</span>
+        <span class="stack-chip">S3</span>
+        <span class="stack-chip">Anthropic API</span>
+        <span class="stack-chip">Express</span>
+      </div>
+      <a href="https://github.com/yellobean090/recall-agentic-memory" class="project-link" target="_blank">github →</a>
+    </div>
     <div class="project-card reveal">
-      <span class="project-badge">internship</span>
+      <span class="project-badge">assessment</span>
       <div class="project-name">Task Manager API</div>
-      <p class="project-desc">Full-stack task management with JWT auth, bcrypt password hashing, and role-based access control. Versioned RESTful API with Swagger docs, layered architecture, and a React frontend.</p>
+      <p class="project-desc">Full-stack task management built as a take-home backend assessment. JWT auth, bcrypt password hashing, and role-based access control. Versioned RESTful API with Swagger docs, layered architecture, and a React frontend.</p>
       <div class="project-stack">
         <span class="stack-chip">Node.js</span>
         <span class="stack-chip">Express</span>
@@ -604,9 +792,9 @@
       <a href="https://github.com/yellobean090/Final-Assignment" class="project-link" target="_blank">github →</a>
     </div>
     <div class="project-card reveal">
-      <span class="project-badge">computer vision</span>
+      <span class="project-badge">in progress</span>
       <div class="project-name">Real-Time AR Face Filter</div>
-      <p class="project-desc">Spider-Man mask AR overlay using OpenCV and MediaPipe's 468-point face mesh. Delaunay triangulation mesh warping with per-group keyboard-tunable UV offsets at live camera framerate.</p>
+      <p class="project-desc">Building a Spider-Man mask AR overlay using OpenCV and MediaPipe's 468-point face mesh. Delaunay triangulation mesh warping with a canonical UV map and per-group keyboard-tunable offsets, targeting live camera framerate.</p>
       <div class="project-stack">
         <span class="stack-chip">Python</span>
         <span class="stack-chip">OpenCV</span>
@@ -614,19 +802,16 @@
       </div>
     </div>
     <div class="project-card reveal">
-      <span class="project-badge">experiment</span>
-      <div class="project-name">Ephemeral Chat System</div>
-      <p class="project-desc">Anonymous real-time terminal-style chat with WebSockets and ngrok tunneling. Zero persistence — messages exist only in the session. Built in a weekend.</p>
+      <span class="project-badge">weekend build</span>
+      <div class="project-name">Ghost Terminal</div>
+      <p class="project-desc">Anonymous real-time terminal-style chat with WebSockets and ngrok tunneling. Zero persistence — no login, no message history, messages exist only in the session. Built under the YelloBean Studio banner.</p>
       <div class="project-stack">
         <span class="stack-chip">Node.js</span>
         <span class="stack-chip">WebSockets</span>
         <span class="stack-chip">ngrok</span>
         <span class="stack-chip">Vercel</span>
       </div>
-    </div>
-    <div class="project-card reveal" style="justify-content: center; align-items: center; text-align: center; border-style: dashed; min-height: 220px;">
-      <div style="color: var(--muted); font-size: 0.85rem;">More in progress...</div>
-      <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--accent); margin-top: 0.5rem;">YelloBean Studio</div>
+      <a href="https://github.com/yellobean090/Ghost-Repo" class="project-link" target="_blank">github →</a>
     </div>
   </div>
 </section>
@@ -663,6 +848,75 @@ const observer = new IntersectionObserver((entries) => {
 reveals.forEach(r => observer.observe(r));
 // Trigger hero immediately
 document.querySelectorAll('#hero .reveal').forEach(el => el.classList.add('visible'));
+
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// SCROLL PROGRESS BAR
+const progressBar = document.getElementById('scrollProgress');
+function updateProgress() {
+  const h = document.documentElement;
+  const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+  progressBar.style.width = scrolled + '%';
+}
+window.addEventListener('scroll', updateProgress, { passive: true });
+updateProgress();
+
+// MOBILE NAV TOGGLE
+const navToggle = document.getElementById('navToggle');
+const mobileNav = document.getElementById('mobileNav');
+function closeMobileNav() {
+  mobileNav.classList.remove('open');
+  navToggle.setAttribute('aria-expanded', 'false');
+  navToggle.setAttribute('aria-label', 'Open menu');
+}
+navToggle.addEventListener('click', () => {
+  const isOpen = mobileNav.classList.toggle('open');
+  navToggle.setAttribute('aria-expanded', String(isOpen));
+  navToggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+});
+mobileNav.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMobileNav));
+
+// STAT COUNT-UP
+const statObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    const raw = el.textContent.trim();
+    const match = raw.match(/^(\d+)(.*)$/);
+    if (!match) return;
+    const target = parseInt(match[1], 10);
+    const suffix = match[2];
+    if (prefersReducedMotion) { statObserver.unobserve(el); return; }
+    let start = 0;
+    const duration = 900;
+    const startTime = performance.now();
+    function tick(now) {
+      const p = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(eased * target) + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = target + suffix;
+    }
+    requestAnimationFrame(tick);
+    statObserver.unobserve(el);
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.stat-num').forEach(el => statObserver.observe(el));
+
+// PROJECT CARD TILT
+if (!prefersReducedMotion && window.matchMedia('(hover: hover)').matches) {
+  document.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `translateY(-4px) rotateX(${(-y * 6).toFixed(2)}deg) rotateY(${(x * 6).toFixed(2)}deg)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+}
 
 // HERO 3D SCENE
 (function() {
